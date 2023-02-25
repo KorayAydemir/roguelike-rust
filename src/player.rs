@@ -23,10 +23,22 @@ pub fn player_input(gs: &mut State, ctx: &mut BTerm) {
     match ctx.key {
         None => {} // Nothing happened
         Some(key) => match key {
-            VirtualKeyCode::Left => try_move_player(-1, 0, &mut gs.ecs),
-            VirtualKeyCode::Right => try_move_player(1, 0, &mut gs.ecs),
-            VirtualKeyCode::Up => try_move_player(0, -1, &mut gs.ecs),
-            VirtualKeyCode::Down => try_move_player(0, 1, &mut gs.ecs),
+            VirtualKeyCode::Left | VirtualKeyCode::A | VirtualKeyCode::H => {
+                try_move_player(-1, 0, &mut gs.ecs)
+            }
+
+            VirtualKeyCode::Right | VirtualKeyCode::D | VirtualKeyCode::L => {
+                try_move_player(1, 0, &mut gs.ecs)
+            }
+
+            VirtualKeyCode::Up | VirtualKeyCode::W | VirtualKeyCode::K => {
+                try_move_player(0, -1, &mut gs.ecs)
+            }
+
+            VirtualKeyCode::Down | VirtualKeyCode::S | VirtualKeyCode::J => {
+                try_move_player(0, 1, &mut gs.ecs)
+            }
+
             _ => {}
         },
     }
