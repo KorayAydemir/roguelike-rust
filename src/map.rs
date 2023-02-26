@@ -1,7 +1,9 @@
 use bracket_lib::{
+    prelude::{Algorithm2D, BaseMap},
     random::RandomNumberGenerator,
-    terminal::{self, BTerm, RGB},
+    terminal::{self, to_cp437, BTerm, Point, RGB},
 };
+use specs::prelude::*;
 
 use crate::rect::Rect;
 use core::cmp::{max, min};
@@ -17,6 +19,7 @@ pub struct Map {
     pub rooms: Vec<Rect>,
     pub width: i32,
     pub height: i32,
+    pub revealed_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -57,6 +60,7 @@ impl Map {
             rooms: Vec::new(),
             width: 80,
             height: 50,
+            revealed_tiles: vec![false; 80 * 50],
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -97,37 +101,50 @@ impl Map {
     }
 }
 
-pub fn draw_map(map: &Vec<TileType>, ctx: &mut BTerm) {
+pub fn draw_map(ecs: &World, ctx: &mut BTerm) {
+    let map = ecs.fetch::<Map>();
+
     let mut y = 0;
     let mut x = 0;
-    for tile in map.iter() {
+    for (idx, tile) in map.tiles.iter().enumerate() {
         // Render a tile depending upon the tile type
-        match tile {
-            TileType::Floor => {
-                ctx.set(
-                    x,
-                    y,
-                    RGB::from_f32(0.5, 0.5, 0.5),
-                    RGB::from_f32(0., 0., 0.),
-                    terminal::to_cp437('.'),
-                );
+
+        if map.revealed_tiles[idx] {
+            let glyph;
+            let mut fg;
+            match tile {
+                TileType::Floor => {
+                    glyph = to_cp437('.');
+                    fg = RGB::from_f32(0.0, 0.5, 0.5);
+                }
+                TileType::Wall => {
+                    glyph = to_cp437('#');
+                    fg = RGB::from_f32(0., 1.0, 0.);
+                }
             }
-            TileType::Wall => {
-                ctx.set(
-                    x,
-                    y,
-                    RGB::from_f32(0.0, 1.0, 0.0),
-                    RGB::from_f32(0., 0., 0.),
-                    terminal::to_cp437('#'),
-                );
+            if !map.revealed_tiles[idx] {
+                fg = fg.to_greyscale()
             }
+            ctx.set(x, y, fg, RGB::from_f32(0., 0., 0.), glyph);
         }
 
-        // Move the coords
+        // Move the coordinates
         x += 1;
         if x > 79 {
             x = 0;
             y += 1;
         }
+    }
+}
+
+impl Algorithm2D for Map {
+    fn dimensions(&self) -> bracket_lib::terminal::Point {
+        Point::new(self.width, self.height)
+    }
+}
+
+impl BaseMap for Map {
+    fn is_opaque(&self, idx: usize) -> bool {
+        self.tiles[idx as usize] == TileType::Wall
     }
 }
