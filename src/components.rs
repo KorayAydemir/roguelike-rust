@@ -5,6 +5,7 @@ use specs_derive::*;
 #[derive(Component)]
 pub struct Viewshed {
     pub visible_tiles: Vec<bracket_lib::terminal::Point>,
+    pub dirty:bool,
     pub range: i32,
 }
 

@@ -20,6 +20,7 @@ pub struct Map {
     pub width: i32,
     pub height: i32,
     pub revealed_tiles: Vec<bool>,
+    pub visible_tiles: Vec<bool>
 }
 
 impl Map {
@@ -61,6 +62,7 @@ impl Map {
             width: 80,
             height: 50,
             revealed_tiles: vec![false; 80 * 50],
+            visible_tiles: vec![false; 80*50]
         };
 
         const MAX_ROOMS: i32 = 30;
@@ -122,7 +124,7 @@ pub fn draw_map(ecs: &World, ctx: &mut BTerm) {
                     fg = RGB::from_f32(0., 1.0, 0.);
                 }
             }
-            if !map.revealed_tiles[idx] {
+            if !map.visible_tiles[idx] {
                 fg = fg.to_greyscale()
             }
             ctx.set(x, y, fg, RGB::from_f32(0., 0., 0.), glyph);
