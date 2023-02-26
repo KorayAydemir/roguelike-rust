@@ -47,11 +47,10 @@ pub fn new_map_rooms_and_corridors() -> (Vec<Rect>, Vec<TileType>) {
                     apply_horizontal_tunnel(&mut map, prev_x, new_x, prev_y);
                     apply_vertical_tunnel(&mut map, prev_y, new_y, new_x);
                 } else {
-                    apply_horizontal_tunnel(&mut map, prev_y, new_y, prev_x);
-                    apply_vertical_tunnel(&mut map, prev_x, new_x, new_y);
+                    apply_vertical_tunnel(&mut map, prev_y, new_y, prev_x);
+                    apply_horizontal_tunnel(&mut map, prev_x, new_x, new_y);
                 }
             }
-
             rooms.push(new_room);
         }
     }
