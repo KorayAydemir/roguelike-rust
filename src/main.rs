@@ -1,6 +1,11 @@
+use std::{thread::sleep_ms, time::Duration};
+
 use bracket_lib::{
     random::RandomNumberGenerator,
-    terminal::{to_cp437, BTerm, BTermBuilder, GameState, Point, BLACK, RED, RGB, YELLOW},
+    terminal::{
+        console, to_cp437, BTerm, BTermBuilder, FontCharType, GameState, Point, BLACK, RED, RGB,
+        YELLOW,
+    },
 };
 use specs::prelude::*;
 
@@ -32,13 +37,16 @@ impl GameState for State {
     fn tick(&mut self, ctx: &mut BTerm) {
         ctx.cls();
 
-        player_input(self, ctx);
-        if self.runstate == RunState::Running {
-            self.run_systems();
-            self.runstate = RunState::Paused;
-        } else {
-            self.runstate = player_input(self, ctx);
-        }
+        self.run_systems();
+        self.runstate = player_input(self, ctx);
+
+        // Using this instead of two lines above, makes the game very slow for some reason ??
+        //        if self.runstate == RunState::Running {
+        //            self.run_systems();
+        //            self.runstate = RunState::Paused;
+        //        } else {
+        //            self.runstate = player_input(self, ctx);
+        //        }
 
         draw_map(&self.ecs, ctx);
 
@@ -81,39 +89,10 @@ fn main() {
     gs.ecs.register::<Player>();
     gs.ecs.register::<Viewshed>();
     gs.ecs.register::<Monster>();
+    gs.ecs.register::<Name>();
 
     let map: Map = Map::new_map_rooms_and_corridors();
     let (player_x, player_y) = map.rooms[0].center();
-
-    let mut rng = RandomNumberGenerator::new();
-    for room in map.rooms.iter().skip(1) {
-        let (x, y) = room.center();
-
-        let glyph: bracket_lib::terminal::FontCharType;
-        let roll = rng.roll_dice(1, 2);
-        match roll {
-            1 => glyph = to_cp437('g'),
-            _ => glyph = to_cp437('o'),
-        }
-
-        gs.ecs
-            .create_entity()
-            .with(Position { x, y })
-            .with(Renderable {
-                glyph,
-                fg: RGB::named(RED),
-                bg: RGB::named(BLACK),
-            })
-            .with(Viewshed {
-                visible_tiles: Vec::new(),
-                range: 8,
-                dirty: true,
-            })
-            .with(Monster {})
-            .build();
-    }
-
-    gs.ecs.insert(map);
 
     gs.ecs
         .create_entity()
@@ -132,8 +111,50 @@ fn main() {
             range: 8,
             dirty: true,
         })
+        .with(Name {
+            name: "Player".to_string(),
+        })
         .build();
 
+    let mut rng = RandomNumberGenerator::new();
+    for (i, room) in map.rooms.iter().skip(1).enumerate() {
+        let (x, y) = room.center();
+
+        let glyph: FontCharType;
+        let name: String;
+        let roll = rng.roll_dice(1, 2);
+        match roll {
+            1 => {
+                glyph = to_cp437('g');
+                name = "Goblin".to_string();
+            }
+            _ => {
+                glyph = to_cp437('o');
+                name = "Orc".to_string();
+            }
+        }
+
+        gs.ecs
+            .create_entity()
+            .with(Position { x, y })
+            .with(Renderable {
+                glyph,
+                fg: RGB::named(RED),
+                bg: RGB::named(BLACK),
+            })
+            .with(Viewshed {
+                visible_tiles: Vec::new(),
+                range: 8,
+                dirty: true,
+            })
+            .with(Monster {})
+            .with(Name {
+                name: format!("{} #{}", &name, i),
+            })
+            .build();
+    }
+
+    gs.ecs.insert(map);
     gs.ecs.insert(Point::new(player_x, player_y));
 
     bracket_lib::terminal::main_loop(context, gs);
