@@ -2,10 +2,13 @@ use bracket_lib::terminal::{FontCharType, RGB};
 use specs::prelude::*;
 use specs_derive::*;
 
+#[derive(Component, Debug)]
+pub struct Monster {}
+
 #[derive(Component)]
 pub struct Viewshed {
     pub visible_tiles: Vec<bracket_lib::terminal::Point>,
-    pub dirty:bool,
+    pub dirty: bool,
     pub range: i32,
 }
 

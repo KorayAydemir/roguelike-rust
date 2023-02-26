@@ -1,7 +1,7 @@
 use bracket_lib::{
     prelude::{Algorithm2D, BaseMap},
     random::RandomNumberGenerator,
-    terminal::{self, to_cp437, BTerm, Point, RGB},
+    terminal::{to_cp437, BTerm, Point, RGB},
 };
 use specs::prelude::*;
 
@@ -20,7 +20,7 @@ pub struct Map {
     pub width: i32,
     pub height: i32,
     pub revealed_tiles: Vec<bool>,
-    pub visible_tiles: Vec<bool>
+    pub visible_tiles: Vec<bool>,
 }
 
 impl Map {
@@ -62,7 +62,7 @@ impl Map {
             width: 80,
             height: 50,
             revealed_tiles: vec![false; 80 * 50],
-            visible_tiles: vec![false; 80*50]
+            visible_tiles: vec![false; 80 * 50],
         };
 
         const MAX_ROOMS: i32 = 30;
