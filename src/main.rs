@@ -1,10 +1,7 @@
-use std::{thread::sleep_ms, time::Duration};
-
 use bracket_lib::{
     random::RandomNumberGenerator,
     terminal::{
-        console, to_cp437, BTerm, BTermBuilder, FontCharType, GameState, Point, BLACK, RED, RGB,
-        YELLOW,
+        to_cp437, BTerm, BTermBuilder, FontCharType, GameState, Point, BLACK, RED, RGB, YELLOW,
     },
 };
 use specs::prelude::*;
@@ -157,5 +154,5 @@ fn main() {
     gs.ecs.insert(map);
     gs.ecs.insert(Point::new(player_x, player_y));
 
-    bracket_lib::terminal::main_loop(context, gs);
+    bracket_lib::terminal::main_loop(context, gs).expect("program crashed");
 }
